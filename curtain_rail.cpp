@@ -3,39 +3,48 @@
 #include <functional>
 #include <initializer_list>
 
-#include <iostream>
-
 namespace teruki_lib{
 
+// curtain_rail構造 - 実装方針[2]
+
+// 鍵クラス、値クラス、空間の次元
 template <class INDEX, class VALUE, int DIM = 2>
 class curtain_rail{
 
-    using cr_iterator =
+    // 先頭/末尾ポインタを表現する型。
+    using data_iterator =
         typename std::multimap<VALUE, INDEX>::iterator;
 
+    // 引数用の格納クラス。
     template <class CLASS>
     using cr_list =
         std::initializer_list<CLASS>;
-
+    // 
     struct cr_base_value{ VALUE value[4]; };
-    
+
+    // 任意の鍵データに対応する値を検索するデータ構造。
     std::unordered_map<INDEX, cr_base_value> base;
+    // 任意の値に対応する鍵データを検索するデータ構造。
     std::multimap<VALUE, INDEX> data[DIM];
 
-    cr_iterator start_itr[DIM], end_itr[DIM];
+    // 各次元における索引範囲の先頭/末尾を表すポインタ
+    data_iterator start_itr[DIM], end_itr[DIM];
 
     bool cleared = true;
 
+    // ポインタをリセットする。
     void pointer_reset(int _dim){
         start_itr[_dim] = data[_dim].begin();
         end_itr[_dim]   = data[_dim].begin();
     }
 
+    // 全ポインタをリセットする。
     void pointer_reset_all(){
         for(int i = 0; i < DIM; i++)
             pointer_reset(i);
     }
 
+    // 要素代入時の頭/末尾ポインタの遷移処理に伴うデータ構造の更新。
     void step_for_insertion(INDEX _index, int _dim){
         if(_dim == DIM-1) return;
 
@@ -53,6 +62,7 @@ class curtain_rail{
         }
     }
 
+    // 先頭/末尾ポインタの遷移処理時に伴うデータ構造の更新。
     void step(INDEX _index, int _dim, VALUE _val_start, VALUE _val_end){
         
         if(_dim == DIM-1) return;
@@ -70,9 +80,10 @@ class curtain_rail{
             
         }
     }
+    
 
-
-    void slide_pointer(cr_iterator & _itr, VALUE _val_start, VALUE _val_end, bool _is_start, int _dim){
+    // 先頭/末尾ポインタを移動させる。
+    void slide_pointer(data_iterator & _itr, VALUE _val_start, VALUE _val_end, bool _is_start, int _dim){
 
         const VALUE _value = _is_start ? _val_start:_val_end;
 
@@ -104,6 +115,7 @@ class curtain_rail{
         return;
     }
 
+    // 一つの次元に対する代入処理。
     void insert_unit(INDEX _index, int _dim, bool for_search){
 
         if(find_unit(_index, _dim) != data[_dim].end()) return;
@@ -119,6 +131,7 @@ class curtain_rail{
         }
     }
 
+    // 一つの次元に対する索引処理。
     void search_unit(VALUE _val_start, VALUE _val_end, int _dim){
 
         cleared = false;
@@ -128,8 +141,9 @@ class curtain_rail{
 
     }
 
+    // 一つの次元に対する削除処理。
     bool erase_unit(INDEX _index, int _dim){
-        cr_iterator itr = find_unit(_index, _dim);
+        data_iterator itr = find_unit(_index, _dim);
         if(itr == data[_dim].end()) return false;
 
         if(itr == start_itr[_dim]) start_itr[_dim]++;
@@ -139,12 +153,13 @@ class curtain_rail{
         return true;
     }
 
-    cr_iterator find_unit(INDEX _index, int _dim){
+    // 一つの次元に対する要素検索処理。
+    data_iterator find_unit(INDEX _index, int _dim){
         VALUE _value = base[_index].value[_dim];
 
-        cr_iterator itr = data[_dim].find(_value);
+        data_iterator itr = data[_dim].find(_value);
 
-        while(1){
+        while(true){
 
             if(itr == data[_dim].end())
                 break;
@@ -161,8 +176,9 @@ class curtain_rail{
         return data[_dim].end();
     }
 
+    /*
     void debug_unit(int _dim){
-        for(cr_iterator itr = data[_dim].begin(); itr != data[_dim].end(); itr++){
+        for(data_iterator itr = data[_dim].begin(); itr != data[_dim].end(); itr++){
             if(itr == start_itr[_dim]) std::cout<<"vvv"<<std::endl;
             if(itr == end_itr[_dim]) std::cout<<"^^^"<<std::endl;
             std::cout<<itr->second<<":"<<itr->first<<std::endl;
@@ -171,6 +187,8 @@ class curtain_rail{
         if(start_itr[_dim] == data[_dim].end()) std::cout<<"vvv"<<std::endl;
         if(end_itr[_dim] == data[_dim].end()) std::cout<<"^^^"<<std::endl;
     }
+    */
+    
 
 public:
 
@@ -226,12 +244,60 @@ public:
         base.erase(_index);
     }
 
+    // 索引結果を返すためのイテレータ
+
+    class iterator {
+
+    public:
+
+        data_iterator cont_iter;
+
+        INDEX operator*() const noexcept{
+            return cont_iter->second;
+        }
+
+        friend bool operator==(const iterator& a, const iterator& b){
+            return a.cont_iter->second == b.cont_iter->second;
+        }
+
+        friend bool operator!=(const iterator& a, const iterator& b){
+            return a.cont_iter->second != b.cont_iter->second;
+        }
+
+        iterator operator++(int){
+            cont_iter++;
+            return *this;
+        }
+
+        iterator operator--(int){
+            cont_iter--;
+            return *this;
+        }
+    };
+
+    iterator begin(){
+        iterator res;
+        res.cont_iter = start_itr[DIM-1];
+        return res;
+    }
+
+    iterator end(){
+        iterator res;
+        res.cont_iter = end_itr[DIM-1];
+        return res;
+    }
+
+    /*
+
     void debug(){
         for(int i=0; i<DIM; i++){
             debug_unit(i);
-            std::cout<<"=========="<<std::endl;
+            std::cout<<"---"<<std::endl;
         }
     }
+
+    */
+    
 
 };
 
