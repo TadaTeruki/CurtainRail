@@ -176,19 +176,37 @@ class curtain_rail{
         return data[_dim].end();
     }
 
-    /*
-    void debug_unit(int _dim){
-        for(data_iterator itr = data[_dim].begin(); itr != data[_dim].end(); itr++){
-            if(itr == start_itr[_dim]) std::cout<<"vvv"<<std::endl;
-            if(itr == end_itr[_dim]) std::cout<<"^^^"<<std::endl;
-            std::cout<<itr->second<<":"<<itr->first<<std::endl;
+    // 索引結果を返すためのイテレータ
+
+    class iterator {
+
+    public:
+
+        data_iterator cont_iter;
+
+        INDEX operator*() const noexcept{
+            return cont_iter->second;
         }
 
-        if(start_itr[_dim] == data[_dim].end()) std::cout<<"vvv"<<std::endl;
-        if(end_itr[_dim] == data[_dim].end()) std::cout<<"^^^"<<std::endl;
-    }
-    */
-    
+        friend bool operator==(const iterator& a, const iterator& b){
+            return a.cont_iter->second == b.cont_iter->second;
+        }
+
+        friend bool operator!=(const iterator& a, const iterator& b){
+            return a.cont_iter->second != b.cont_iter->second;
+        }
+
+        iterator operator++(int){
+            cont_iter++;
+            return *this;
+        }
+
+        iterator operator--(int){
+            cont_iter--;
+            return *this;
+        }
+    };
+
 
 public:
 
@@ -244,36 +262,6 @@ public:
         base.erase(_index);
     }
 
-    // 索引結果を返すためのイテレータ
-
-    class iterator {
-
-    public:
-
-        data_iterator cont_iter;
-
-        INDEX operator*() const noexcept{
-            return cont_iter->second;
-        }
-
-        friend bool operator==(const iterator& a, const iterator& b){
-            return a.cont_iter->second == b.cont_iter->second;
-        }
-
-        friend bool operator!=(const iterator& a, const iterator& b){
-            return a.cont_iter->second != b.cont_iter->second;
-        }
-
-        iterator operator++(int){
-            cont_iter++;
-            return *this;
-        }
-
-        iterator operator--(int){
-            cont_iter--;
-            return *this;
-        }
-    };
 
     iterator begin(){
         iterator res;
@@ -286,18 +274,6 @@ public:
         res.cont_iter = end_itr[DIM-1];
         return res;
     }
-
-    /*
-
-    void debug(){
-        for(int i=0; i<DIM; i++){
-            debug_unit(i);
-            std::cout<<"---"<<std::endl;
-        }
-    }
-
-    */
-    
 
 };
 
