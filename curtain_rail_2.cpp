@@ -79,6 +79,8 @@ class curtain_rail_2{
                 if( erase_unit(_index, i) == false) break;
             }
             
+            //for(int i=0; i<DIM; i++) erase_unit(_index, i);
+            
         }
     }
     

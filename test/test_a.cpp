@@ -6,13 +6,14 @@
 #include <random>
 #include <vector>
 
-template<class KEY, class VALUE>
-void test(unsigned int repeat = 0, unsigned int search = 0){
+#define DIM 3
 
-    const int dim = 2;
-    const int n = 100000;
-    const int maxval = 10000;
-    const int maxnoise = 100;
+// データ構造が全探索を代替できるかをテストするプログラム。
+
+template<class KEY, class VALUE>
+void test(unsigned int repeat, unsigned int search, int n, int maxval, int maxnoise){
+
+    const int dim = DIM; // 次元
 
     std::random_device rd;
     std::vector<std::vector<VALUE>> data = std::vector<std::vector<VALUE>>(n,std::vector<VALUE>(dim, 0));
@@ -67,10 +68,12 @@ void test(unsigned int repeat = 0, unsigned int search = 0){
 
         if(cont_1_size != actual_size){
             std::cout<<"cont_1 : extracted data size is invalid"<<std::endl;
+            std::cout<<"cont_1 :"<<cont_1_size<<", actual:"<<actual_size<<std::endl;
         }
 
         if(cont_2_size != actual_size){
             std::cout<<"cont_2 : extracted data size is invalid"<<std::endl;
+            std::cout<<"cont_2 :"<<cont_2_size<<", actual:"<<actual_size<<std::endl;
         }
 
         for(auto& it:range){
@@ -82,12 +85,17 @@ void test(unsigned int repeat = 0, unsigned int search = 0){
     }
 
     
-    if(repeat != 0) test<KEY, VALUE>(repeat-1, search);
+    if(repeat != 0) test<KEY, VALUE>(repeat-1, search,n,maxval,maxnoise);
 }
 
 int main(){
     int A = 50;
     int B = 30;
+
+    const int n = 100000; // 要素数
+    const int maxval = 10000; // 要素の最大の大きさ
+    const int maxnoise = 100; // 索引範囲の移動幅
+
     // 1回の索引とB回の再索引 をA回繰り返すテスト
-    test<int, int>(A,B);
+    test<int, int>(A,B,n,maxval,maxnoise);
 }
