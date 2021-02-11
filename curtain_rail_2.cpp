@@ -9,7 +9,7 @@ namespace teruki_lib{
 
 // 鍵クラス、値クラス、空間の次元
 template <class INDEX, class VALUE, int DIM = 2>
-class curtain_rail{
+class curtain_rail_2{
 
     // 先頭/末尾ポインタを表現する型。
     using data_iterator =
@@ -190,11 +190,11 @@ class curtain_rail{
         }
 
         friend bool operator==(const iterator& a, const iterator& b){
-            return a.cont_iter->second == b.cont_iter->second;
+            return a.cont_iter == b.cont_iter;
         }
 
         friend bool operator!=(const iterator& a, const iterator& b){
-            return a.cont_iter->second != b.cont_iter->second;
+            return a.cont_iter != b.cont_iter;
         }
 
         iterator operator++(int){
@@ -211,12 +211,13 @@ class curtain_rail{
 
 public:
 
-    curtain_rail(){
+    curtain_rail_2(){
         pointer_reset_all();
     }
 
+
     template<class CONT>
-    bool insert(INDEX _index, CONT _vals){
+    bool insert_process(INDEX _index, CONT _vals){
 
         if(_vals.size() != DIM) return false;
 
@@ -235,11 +236,16 @@ public:
     }
 
     bool insert(INDEX _index, cr_list<VALUE> _vals){
-        return insert(_index, _vals);
+        return insert_process(_index, _vals);
     }
 
     template<class CONT>
-    bool search(CONT _l_vals){
+    bool insert(INDEX _index, CONT _vals){
+        return insert_process(_index, _vals);
+    }
+
+    template<class CONT>
+    bool search_process(CONT _l_vals){
 
         if(_l_vals.size() != DIM) return false;
 
@@ -263,7 +269,12 @@ public:
     }
 
     bool search(cr_list<cr_list<VALUE>> _l_vals){
-        return search(_l_vals);
+        return search_process(_l_vals);
+    }
+
+    template<class CONT>
+    bool search(CONT _l_vals){
+        return search_process(_l_vals);
     }
 
     void erase(INDEX _index){

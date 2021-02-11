@@ -1,5 +1,6 @@
 
-#include "../curtain_rail.cpp"
+#include "../curtain_rail_1.cpp"
+#include "../curtain_rail_2.cpp"
 
 #include <iostream>
 #include <random>
@@ -18,14 +19,17 @@ void test(unsigned int repeat = 0, unsigned int search = 0){
     std::vector<std::vector<VALUE>> range = std::vector<std::vector<VALUE>>(dim,std::vector<VALUE>(2, 0));
     std::vector<KEY> res;
 
-    teruki_lib::curtain_rail<KEY, VALUE, dim> cont;
+    teruki_lib::curtain_rail_1<KEY, VALUE, dim> cont_1;
+    teruki_lib::curtain_rail_2<KEY, VALUE, dim> cont_2;
+
     int ad=0;
     for(auto& it:data){
         for(auto& jt:it){
             jt = rd()%maxval;
             //std::cout<<jt<<std::endl;
         }
-        cont.insert(ad, it);
+        cont_1.insert(ad, it);
+        cont_2.insert(ad, it);
         ad++;
     }
 
@@ -36,11 +40,18 @@ void test(unsigned int repeat = 0, unsigned int search = 0){
 
     for(int r=0;r<search;r++){
 
-        cont.search(range);
+        cont_1.search(range);
 
-        int cont_size = 0;
-        for(auto it=cont.begin(); it!=cont.end(); it++){
-            cont_size++;
+        int cont_1_size = 0;
+        for(auto it=cont_1.begin(); it!=cont_1.end(); it++){
+            cont_1_size++;
+        }
+
+        cont_2.search(range);
+
+        int cont_2_size = 0;
+        for(auto it=cont_2.begin(); it!=cont_2.end(); it++){
+            cont_2_size++;
         }
 
         int actual_size = 0;
@@ -54,8 +65,12 @@ void test(unsigned int repeat = 0, unsigned int search = 0){
             actual_size += res;
         }
 
-        if(cont_size != actual_size){
-            std::cout<<"extracted data size is invalid"<<std::endl;
+        if(cont_1_size != actual_size){
+            std::cout<<"cont_1 : extracted data size is invalid"<<std::endl;
+        }
+
+        if(cont_2_size != actual_size){
+            std::cout<<"cont_2 : extracted data size is invalid"<<std::endl;
         }
 
         for(auto& it:range){
