@@ -1,6 +1,6 @@
 
-g++ -o test test.cpp
+g++ -o main test/test_a.cpp
 
-./test
+./main
 
-rm -r test
+rm -r main

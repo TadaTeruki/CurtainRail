@@ -20,7 +20,7 @@ class curtain_rail{
     using cr_list =
         std::initializer_list<CLASS>;
     // 
-    struct cr_base_value{ VALUE value[4]; };
+    struct cr_base_value{ VALUE value[DIM*2]; };
 
     // 任意の鍵データに対応する値を検索するデータ構造。
     std::unordered_map<INDEX, cr_base_value> base;
@@ -46,6 +46,7 @@ class curtain_rail{
 
     // 要素代入時の頭/末尾ポインタの遷移処理に伴うデータ構造の更新。
     void step_for_insertion(INDEX _index, int _dim){
+
         if(_dim == DIM-1) return;
 
         if( start_itr[_dim] != data[_dim].end()
@@ -214,7 +215,8 @@ public:
         pointer_reset_all();
     }
 
-    bool insert(INDEX _index, cr_list<VALUE> _vals){
+    template<class CONT>
+    bool insert(INDEX _index, CONT _vals){
 
         if(_vals.size() != DIM) return false;
 
@@ -232,7 +234,12 @@ public:
         return true;
     }
 
-    bool search(cr_list<cr_list<VALUE>> _l_vals){
+    bool insert(INDEX _index, cr_list<VALUE> _vals){
+        return insert(_index, _vals);
+    }
+
+    template<class CONT>
+    bool search(CONT _l_vals){
 
         if(_l_vals.size() != DIM) return false;
 
@@ -253,6 +260,10 @@ public:
         }
 
         return true;
+    }
+
+    bool search(cr_list<cr_list<VALUE>> _l_vals){
+        return search(_l_vals);
     }
 
     void erase(INDEX _index){
